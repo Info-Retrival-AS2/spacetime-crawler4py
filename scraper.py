@@ -1,9 +1,19 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 import nltk
 # nltk.download()
 from nltk.corpus import stopwords
 from simhash import Simhash, SimhashIndex
+
+uniqueUrls = set()
+tokens = dict()
+maxTokenUrl = ""
+maxTokenNum = 0
+subdomains = dict() # <url, number of pages>
+
+
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
@@ -18,12 +28,48 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list(["aaa","bbb"])
+
+    # BeautifulSoup parse web
+    response = BeautifulSoup(resp.raw_response)
+
+    response.get_text()
+    # tokenize
+    global maxTokenNum
+    global maxTokenUrl
+    nums = tokenize(responseText)
+    if nums > maxTokenNum:
+        maxTokenNum = nums
+        maxTokenUrl = url
+
+    # TODO: lyq
+    # Find links
+    uniquePages = set()
+
+    links = findAll()
+
+    # check fragments, add to uniquePages
+
+
+
+
+
+
+    #if *.ics.uci.edu, update global subdomains
+
+
+
+
+    return list(["http://www.ics.uci.edu"])
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
+
+    # TODO: *.ics.uci.edu/* lyq
+    # *.cs.uci.edu/*
+    # *.informatics.uci.edu/*
+    # *.stat.uci.edu/*
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
@@ -41,3 +87,20 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+"""
+responseText: web text string
+return: number of tokens
+ignore stopwrods
+update maxTokenNum
+"""
+def tokenize(responseText):
+    # TODO: jjy cy
+    # nltk
+
+
+    global tokens
+    # update tokens
+
+
+# TODO: output result
+
