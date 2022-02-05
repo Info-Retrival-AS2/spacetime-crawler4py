@@ -30,24 +30,31 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # BeautifulSoup parse web
-    response = BeautifulSoup(resp.raw_response)
+    response = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-    response.get_text()
     # tokenize
     global maxTokenNum
     global maxTokenUrl
-    nums = tokenize(responseText)
+    nums = tokenize(response.get_text())
     if nums > maxTokenNum:
         maxTokenNum = nums
         maxTokenUrl = url
 
     # TODO: lyq
     # Find links
-    uniquePages = set()
+    uniquePages = [] # remove-dul is at isValid. Will be slow if use set here.
+    # Find all href attr in a tags
+    aTags = response.find_all('a')
+    for tag in aTags:
+        curUrl = tag.get('href')
+        # eliminate the fragment
+        isFragment = curUrl.find('#')
+        if isFragment:
+            curUrl = curUrl[:isFragment]
+            uniquePages.append(curUrl)
+        else:
+            uniquePages.append(curUrl)
 
-    links = findAll()
-
-    # check fragments, add to uniquePages
 
 
 
@@ -59,7 +66,7 @@ def extract_next_links(url, resp):
 
 
 
-    return list(["http://www.ics.uci.edu"])
+    return uniquePages
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -70,11 +77,16 @@ def is_valid(url):
     # *.cs.uci.edu/*
     # *.informatics.uci.edu/*
     # *.stat.uci.edu/*
+    domains = ['.ics.uci.edu', '.cs.uci.edu', '.informatics.uci.edu', '.stat.uci.edu', 'today.uci.edu/department/information_computer_sciences']
     try:
         parsed = urlparse(url)
+        if parsed.hostname==None or parsed.netloc==None:
+            return False
         if parsed.scheme not in set(["http", "https"]):
             return False
-        return not re.match(
+        # check like (ics.uci.edu) in (www.ics.uci.edu)
+        if any(dom in parsed.hostname for dom in domains) and \
+        not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
@@ -82,7 +94,14 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+            global uniqueUrls
+            if url in uniqueUrls:
+                return False
+            else:
+                uniqueUrls.add(url)
+                return True
+
 
     except TypeError:
         print ("TypeError for ", parsed)

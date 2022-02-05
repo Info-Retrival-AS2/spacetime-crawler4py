@@ -1,6 +1,10 @@
 # 备注
 在master分支改就行了
 
+## 拉取
+git clone https://github.com/Info-Retrival-AS2/spacetime-crawler4py.git
+
+## 提交
 git add .
 git commit -m "xxxxx"
 git pull
@@ -19,3 +23,5 @@ vision.ics.uci.edu, 10 (not the actual number here)
 + Avoid Trap? (print monitor)
 + Capital words?
 + url authority? unique?
++ Strange URl:
+    + //www.ics.uci.edu/community/news/view_news?id=2105
