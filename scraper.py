@@ -115,7 +115,16 @@ update maxTokenNum
 def tokenize(responseText):
     # TODO: jjy cy
     # nltk
+    stopword = set(stopwords.words('english'))
+    for w in ["aren't"]:  # TODO:其他停顿词
+        stopword.add(w)
+    responseTextLower = responseText.lower()
+    tokenizer = RegexpTokenizer('[a-zA-Z0-9@#*&\']{2,}')
+    wordTokens = tokenizer.tokenize(responseTextLower)
+    removingStopwords = [word for word in wordTokens if word not in stopword]
 
+
+    return len(removingStopwords)
 
     global tokens
     # update tokens
