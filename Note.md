@@ -25,3 +25,5 @@ vision.ics.uci.edu, 10 (not the actual number here)
 + url authority? unique?
 + Strange URl:
     + //www.ics.uci.edu/community/news/view_news?id=2105
+    + http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018
+    + xxx.jpg

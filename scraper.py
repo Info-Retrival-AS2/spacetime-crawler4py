@@ -14,6 +14,9 @@ subdomains = dict() # <url, number of pages>
 
 
 def scraper(url, resp):
+    # there might be empty pages
+    if resp.status != 200 or resp.raw_response.content == None:
+        return []
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
@@ -46,24 +49,15 @@ def extract_next_links(url, resp):
     aTags = response.find_all('a')
     for tag in aTags:
         curUrl = tag.get('href')
+        if curUrl == None:
+            continue
         # eliminate the fragment
         isFragment = curUrl.find('#')
-        if isFragment:
+        if isFragment != -1:
             curUrl = curUrl[:isFragment]
             uniquePages.append(curUrl)
         else:
             uniquePages.append(curUrl)
-
-
-
-
-
-
-
-    #if *.ics.uci.edu, update global subdomains
-
-
-
 
     return uniquePages
 
@@ -72,16 +66,12 @@ def is_valid(url):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
 
-    # TODO: *.ics.uci.edu/* lyq
-    # *.cs.uci.edu/*
-    # *.informatics.uci.edu/*
-    # *.stat.uci.edu/*
     domains = ['.ics.uci.edu', '.cs.uci.edu', '.informatics.uci.edu', '.stat.uci.edu', 'today.uci.edu/department/information_computer_sciences']
     try:
         parsed = urlparse(url)
         if parsed.hostname==None or parsed.netloc==None:
             return False
-        if parsed.scheme not in set(["http", "https"]):
+        if parsed.scheme not in set(["http", "https"]) or (url.find("?") != -1) or (url.find("&") != -1):
             return False
         # check like (ics.uci.edu) in (www.ics.uci.edu)
         if any(dom in parsed.hostname for dom in domains) and \
@@ -100,6 +90,8 @@ def is_valid(url):
             else:
                 uniqueUrls.add(url)
                 return True
+        else:
+            return False
 
 
     except TypeError:
@@ -114,6 +106,7 @@ update maxTokenNum
 def tokenize(responseText):
     # TODO: jjy cy
     # nltk
+    # TODO: union or intersection?
     stopword = set(stopwords.words('english'))
     for line in open("stopwords.txt"):
         word = line.strip("\n")
@@ -144,7 +137,14 @@ def get50Common():
         count -= 1
     return commonWords
 
-
+def getSubdomains(uniqueUrls):
+    # update from the nearest uniqueUrls, so clear at each time
+    global subdomains
+    subdomains.clear()
+    for url in uniqueUrls:
+        parsed = urlparse(url)
+        if 'ics.uci.edu' in parsed.netloc.lower():
+            subdomains[parsed.hostname] = subdomains.get(parsed.hostname, 0)+1
 
 def outputResult():
     global uniqueUrls, maxTokenUrl, maxTokenNum
@@ -155,10 +155,10 @@ def outputResult():
     for word in commonWords:
         output += word + "\n"
     output += "\n4. Subdomains:\n"
+    getSubdomains(uniqueUrls)
     global subdomains
-    # TODO: ordered alphabetically
     for sub, num in sorted(subdomains):
-        output += "subdomain: " + sub + ", pages: " + str(num) + "\n"
+        output += sub + ",  " + str(num) + "\n"
     try:
         f = open("result.txt", "x")
     except:
