@@ -155,7 +155,8 @@ def outputResult():
         output += word + "\n"
     output += "\n4. Subdomains:\n"
     global subdomains
-    for sub, num in subdomains.items():
+    # TODO: ordered alphabetically
+    for sub, num in sorted(subdomains):
         output += "subdomain: " + sub + ", pages: " + str(num) + "\n"
     try:
         f = open("result.txt", "x")
