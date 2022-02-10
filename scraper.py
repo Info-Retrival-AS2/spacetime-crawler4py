@@ -115,8 +115,9 @@ def tokenize(responseText):
     # TODO: jjy cy
     # nltk
     stopword = set(stopwords.words('english'))
-    for w in ["aren't"]:  # TODO:其他停顿词
-        stopword.add(w)
+    for line in open("stopwords.txt"):
+        word = line.strip("\n")
+        stopword.add(word)
     responseTextLower = responseText.lower()
     tokenizer = RegexpTokenizer('[a-zA-Z0-9@#*&\']{2,}')
     wordTokens = tokenizer.tokenize(responseTextLower)
