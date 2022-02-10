@@ -2,9 +2,8 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import nltk
-# nltk.download()
+from nltk import RegexpTokenizer
 from nltk.corpus import stopwords
-from simhash import Simhash, SimhashIndex
 
 uniqueUrls = set()
 tokens = dict()
@@ -132,5 +131,36 @@ def tokenize(responseText):
 
     return len(removingStopwords)
 
-# TODO: output result
 
+def get50Common():
+    global tokens
+    count = 50
+    commonWords = []
+    for word, freq in sorted(tokens.items(), reverse=True, key=lambda item: item[1]):
+        if count == 0:
+            break
+        commonWords.append(word)
+        count -= 1
+    return commonWords
+
+
+
+def outputResult():
+    global uniqueUrls, maxTokenUrl, maxTokenNum
+    output = "1. Number of unique pages found: " + str(len(uniqueUrls)) + "\n\n" \
+        + "2. Longest page in terms of number of tokens:\n " + maxTokenUrl + " " + str(maxTokenNum)\
+        + "3. 50 most common words: \n"
+    commonWords = get50Common()
+    for word in commonWords:
+        output += word + "\n"
+    output += "\n4. Subdomains:\n"
+    global subdomains
+    for sub, num in subdomains.items():
+        output += "subdomain: " + sub + ", pages: " + str(num) + "\n"
+    try:
+        f = open("result.txt", "x")
+    except:
+        f = open("result.txt", "w")
+    finally:
+        f.write(output)
+        f.close()

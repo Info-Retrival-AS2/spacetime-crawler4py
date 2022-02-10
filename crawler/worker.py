@@ -6,6 +6,8 @@ from utils import get_logger
 import scraper
 import time
 
+from scraper import outputResult
+
 
 class Worker(Thread):
     def __init__(self, worker_id, config, frontier):
@@ -21,6 +23,8 @@ class Worker(Thread):
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
+                # output the result when crawler stops
+                outputResult()
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
