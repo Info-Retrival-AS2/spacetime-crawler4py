@@ -9,16 +9,29 @@ uniqueUrls = set()
 tokens = dict()
 maxTokenUrl = ""
 maxTokenNum = 0
-subdomains = dict() # <url, number of pages>
+subdomains = dict()  # <url, number of pages>
 
-
+outputCount = 500
+stopword = []
+for line in open("stopwords.txt"):
+    word = line.strip("\n")
+    stopword.append(word)
 
 def scraper(url, resp):
     # there might be empty pages
     if resp.status != 200 or resp.raw_response.content == None:
         return []
     links = extract_next_links(url, resp)
+
+    global outputCount
+    if outputCount == 1:
+        outputResult()
+        outputCount = 500
+    else:
+        outputCount -= 1
+
     return [link for link in links if is_valid(link)]
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -44,7 +57,7 @@ def extract_next_links(url, resp):
 
     # TODO: lyq
     # Find links
-    uniquePages = [] # remove-dul is at isValid. Will be slow if use set here.
+    uniquePages = []  # remove-dul is at isValid. Will be slow if use set here.
     # Find all href attr in a tags
     aTags = response.find_all('a')
     for tag in aTags:
@@ -61,29 +74,38 @@ def extract_next_links(url, resp):
 
     return uniquePages
 
+
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
 
-    domains = ['.ics.uci.edu', '.cs.uci.edu', '.informatics.uci.edu', '.stat.uci.edu', 'today.uci.edu/department/information_computer_sciences']
+    domains = ['.ics.uci.edu', '.cs.uci.edu', '.informatics.uci.edu', '.stat.uci.edu',
+               'today.uci.edu/department/information_computer_sciences']
     try:
         parsed = urlparse(url)
-        if parsed.hostname==None or parsed.netloc==None:
+        if parsed.hostname == None or parsed.netloc == None:
             return False
         if parsed.scheme not in set(["http", "https"]) or (url.find("?") != -1) or (url.find("&") != -1):
             return False
         # check like (ics.uci.edu) in (www.ics.uci.edu)
         if any(dom in parsed.hostname for dom in domains) and \
-        not re.match(
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower()):
+                not re.match(
+                    r".*\.(css|js|bmp|gif|jpe?g|ico"
+                    + r"|png|tiff?|mid|mp2|mp3|mp4"
+                    + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+                    + r"|ps|eps|tex|ppt|pptx|ppsx|pptm|xps|doc|docx|xls|xlsx|names"
+                    + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+                    + r"|epub|dll|cnf|tgz|sha1"
+                    + r"|thmx|mso|arff|rtf|jar|csv"
+                    + r"|rm|smil|wmv|swf|wma|zip|rar|gz|z)$", parsed.path.lower()) and \
+                not re.search(r"pdf|docs|blog|page|calendar|archive|events|event|date"
+                              + r"|january|february|march|april|may|june|july|august|september|october|november|december"
+                              + r"|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec", parsed.path.lower()) and \
+                not re.match(
+                    r'/(19|20)[0-9]{2}/|/(19|20)[0-9]{2}$|/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}',
+                    parsed.path.lower()):
+
             global uniqueUrls
             if url in uniqueUrls:
                 return False
@@ -95,33 +117,34 @@ def is_valid(url):
 
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print("TypeError for ", parsed)
         raise
+
+
 """
 responseText: web text string
 return: number of tokens
 ignore stopwrods
 update maxTokenNum
 """
+
+
 def tokenize(responseText):
     # TODO: jjy cy
     # nltk
     # TODO: union or intersection?
-    stopword = set(stopwords.words('english'))
-    for line in open("stopwords.txt"):
-        word = line.strip("\n")
-        stopword.add(word)
+    # stopword = set(stopwords.words('english'))
+    global stopword
+
     responseTextLower = responseText.lower()
     tokenizer = RegexpTokenizer('[a-zA-Z0-9@#*&\']{2,}')
     wordTokens = tokenizer.tokenize(responseTextLower)
     removingStopwords = [word for word in wordTokens if word not in stopword]
 
-
     global tokens
     # update tokens
     for token in removingStopwords:
         tokens[token] = tokens.get(token, 0) + 1
-
 
     return len(removingStopwords)
 
@@ -137,6 +160,7 @@ def get50Common():
         count -= 1
     return commonWords
 
+
 def getSubdomains(uniqueUrls):
     # update from the nearest uniqueUrls, so clear at each time
     global subdomains
@@ -144,20 +168,21 @@ def getSubdomains(uniqueUrls):
     for url in uniqueUrls:
         parsed = urlparse(url)
         if 'ics.uci.edu' in parsed.netloc.lower():
-            subdomains[parsed.hostname] = subdomains.get(parsed.hostname, 0)+1
+            subdomains[parsed.hostname] = subdomains.get(parsed.hostname, 0) + 1
+
 
 def outputResult():
     global uniqueUrls, maxTokenUrl, maxTokenNum
     output = "1. Number of unique pages found: " + str(len(uniqueUrls)) + "\n\n" \
-        + "2. Longest page in terms of number of tokens:\n " + maxTokenUrl + " " + str(maxTokenNum)\
-        + "3. 50 most common words: \n"
+             + "2. Longest page in terms of number of tokens:\n " + maxTokenUrl + " " + str(maxTokenNum) + "\n\n" \
+             + "3. 50 most common words: \n"
     commonWords = get50Common()
     for word in commonWords:
         output += word + "\n"
     output += "\n4. Subdomains:\n"
     getSubdomains(uniqueUrls)
     global subdomains
-    for sub, num in sorted(subdomains):
+    for sub, num in sorted(subdomains.items()):
         output += sub + ",  " + str(num) + "\n"
     try:
         f = open("result.txt", "x")

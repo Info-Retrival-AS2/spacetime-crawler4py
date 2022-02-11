@@ -23,7 +23,14 @@ vision.ics.uci.edu, 10 (not the actual number here)
 + Avoid Trap? (print monitor)
 + Capital words?
 + url authority? unique?
-+ Strange URl:
++ Trap URl:
     + //www.ics.uci.edu/community/news/view_news?id=2105
     + http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018
-    + xxx.jpg
+    + https://wics.ics.uci.edu/events/2017-05-01
+    + https://ngs.ics.uci.edu/category/technical-thoughts/page/57
+    + https://mt-live.ics.uci.edu/events/2021-11-07
+    + https://www.informatics.uci.edu/2014/07
+    + http://alumni.ics.uci.edu/2008/07/10/answering-the-call
+    + https://acoi.ics.uci.edu/2019 
+    + https://acoi.ics.uci.edu/2019/10
+    + https://acoi.ics.uci.edu/2019/10/12
