@@ -101,12 +101,15 @@ def is_valid(url):
                     + r"|epub|dll|cnf|tgz|sha1"
                     + r"|thmx|mso|arff|rtf|jar|csv"
                     + r"|rm|smil|wmv|swf|wma|zip|rar|gz|z)$", parsed.path.lower()) and \
-                not re.search(r"pdf|docs|blog|events|date"
+                not re.search(
+                    # r"pdf|docs|blog|events|date"
+                    r"pdf|docs"
                               + r"|january|february|march|april|may|june|july|august|september|october|november|december"
                               + r"|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec", parsed.path.lower()) and \
                 not re.match(
                     #r'/(19|20)[0-9]{2}/|/(19|20)[0-9]{2}$|/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}',
-                    r'/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}|/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2}$',
+                    # r'/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}|/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2}$',
+                    r'.*(/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2})$',
                     parsed.path.lower()):
 
             global uniqueUrls
