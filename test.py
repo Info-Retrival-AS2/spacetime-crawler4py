@@ -25,7 +25,7 @@ testUrl2 = "https://wics.ics.uci.edu/page/2"
 parsed = urlparse(testUrl)
 print(parsed.path.lower())
 if re.match(
-            r".*(20[0-9]{2}-[0-9]{1,2}-[0-9]{1,2}|20[0-9]{2}-[0-9]{1,2})$",
-            parsed.path.lower()):
+                    r'/(19|20)[0-9]{2}/',
+                    "/2020/10/01"):
     print(1)
 
