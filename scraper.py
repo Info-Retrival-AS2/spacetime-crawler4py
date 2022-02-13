@@ -17,6 +17,7 @@ for line in open("stopwords.txt"):
     word = line.strip("\n")
     stopword.append(word)
 
+
 def scraper(url, resp):
     # there might be empty pages
     if resp.status != 200 or resp.raw_response.content == None:
@@ -93,24 +94,25 @@ def is_valid(url):
         # check like (ics.uci.edu) in (www.ics.uci.edu)
         if any(dom in parsed.hostname for dom in domains) and \
                 not re.match(
-                    r".*\.(css|js|bmp|gif|jpe?g|ico"
+                    r"(.*\.(css|js|bmp|gif|jpe?g|ico"
                     + r"|png|tiff?|mid|mp2|mp3|mp4"
                     + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
                     + r"|ps|eps|tex|ppt|pptx|ppsx|pptm|xps|doc|docx|xls|xlsx|names"
                     + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
                     + r"|epub|dll|cnf|tgz|sha1"
                     + r"|thmx|mso|arff|rtf|jar|csv"
-                    + r"|rm|smil|wmv|swf|wma|zip|rar|gz|z)$", parsed.path.lower()) and \
+                    + r"|rm|smil|wmv|swf|wma|zip|rar|gz|z)$)"
+                    , parsed.path.lower()) and \
                 not re.search(
                     # r"pdf|docs|blog|events|date"
                     r"pdf|docs"
-                              + r"|january|february|march|april|may|june|july|august|september|october|november|december"
-                              + r"|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec", parsed.path.lower()) and \
-                not re.match(
-                    #r'/(19|20)[0-9]{2}/|/(19|20)[0-9]{2}$|/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}',
-                    # r'/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}|/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2}$',
-                    r'.*(/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2})$',
-                    parsed.path.lower()):
+                    + r"|january|february|march|april|may|june|july|august|september|october|november|december"
+                    + r"|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec|(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2}", parsed.path.lower()):
+                # not re.match(
+                #     # r'/(19|20)[0-9]{2}/|/(19|20)[0-9]{2}$|/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}',
+                #     # r'/(19|20)[0-9]{2}-[0-9]{1,2}|/[0-9]{1,2}-(19|20)[0-9]{2}|[0-9]{1,2}-[0-9]{1,2}-(19|20)[0-9]{2}|/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2}$',
+                #     r".*(/(19|20)[0-9]{2}-[0-9]{1,2}-[0-9]{1,2})$",
+                #     parsed.path.lower()):
 
             global uniqueUrls
             if url in uniqueUrls:
